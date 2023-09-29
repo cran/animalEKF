@@ -64,36 +64,30 @@ server=shinyServer(function(input, output, session)
 		text(x=-118.041, y=33.704, labels="feet")
 	}
    
-   observeEvent( input$run, {
-         
-#load(system.file("bc_longlat_map.RData", package="animalEKF"))
-#		load(system.file("bc_longlat_map_img_ras.RData", package="animalEKF"))
+   	
+	# load the raster and array objects needed for the map
+	# define them first as NULL to avoid Undefined global functions or variables in check
 		
-		#utils::data(bc_longlat_map, package="animalEKF")
-		#utils::data(bc_longlat_map_img_ras, package="animalEKF")
+	bc_longlat_map <- NULL
+	bc_longlat_map_img_ras <- NULL
+	shark_data_longlat <- NULL
 	
-		#fn <- paste("data", c("bc_longlat_map.RData", "bc_longlat_map_img_ras.RData", "shark_data_longlat.rda"), sep="/")
-		#load the shark_data_longlat
-		#utils::data(shark_data_longlat, package="animalEKF")
+	objects_to_load <- c("bc_longlat_map", "bc_longlat_map_img_ras", "shark_data_longlat")
+	# now remove them because sometimes utils::data doesn't seem to overwrite them properly
+	rm(list=objects_to_load)
+	utils::data(list=objects_to_load, package="animalEKF")
+	
 		
-		bc_longlat_map <- NULL
-		bc_longlat_map_img_ras <- NULL
-		shark_data_longlat <- NULL
-		
-		utils::data("bc_longlat_map", "bc_longlat_map_img_ras", "shark_data_longlat", package="animalEKF")
-		
-		#load(system.file("bc_longlat_map_img_ras.rda", package="animalEKF"))
-		#load(system.file("bc_longlat_map.rda", package="animalEKF"))
-		#load(system.file("shark_vis_longlat.rda", package="animalEKF"))
+    observeEvent( input$run, {
+	
+		req(all(vapply(objects_to_load, exists, FUN.VALUE=c(TRUE))))
+	
 		
 		date_as_sec <- as.integer(1217951746 + (shark_data_longlat[,"t_intervals"]-1)*90)
 		shark_data_longlat <- cbind(shark_data_longlat, date_as_sec)
-        d <- shark_data_longlat[ shark_data_longlat[,"t_intervals"] >= input$step_range[1] & shark_data_longlat[,"t_intervals"] <= input$step_range[2],]
-		
+		d <- shark_data_longlat[ shark_data_longlat[,"t_intervals"] >= input$step_range[1] & shark_data_longlat[,"t_intervals"] <= input$step_range[2],]
 		d[,"t_intervals"] <- d[,"t_intervals"] - (min(d[,"t_intervals"], na.rm=TRUE)) +1 
-		
 		#divide by 100000 for storage purposes
-		
 		d[,c("lat","lon")] <- d[,c("lat","lon")]/100000
 		
 	
@@ -145,7 +139,7 @@ server=shinyServer(function(input, output, session)
 				legend_feet()
 				#text(x=-118.04, y=33.7, labels=paste(curr_sharks, collapse="and"), cex=1.3)
 				
-				if( nsharks_curr > 0) {
+				if (nsharks_curr > 0) {
 				
 					points(dtmp[,c("lon","lat")], pch=dtmp[,"pch"], lwd=3, cex=2.5, col=shark_col[ curr_sharks ]) 
 					#plot neighborhoods
@@ -177,8 +171,7 @@ server=shinyServer(function(input, output, session)
 			
 			
 		})#end of observe event
-	    
-	  
+# })
 
 	})#end of server
 	

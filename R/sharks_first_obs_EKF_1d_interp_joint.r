@@ -9,12 +9,15 @@ sharks_first_obs_EKF_1d_interp_joint <- function(env_obj) {
 		env_obj$j_list[[ s ]][[ env_obj$i ]] <- pmin(pmax((env_obj$y_first[,"date_as_sec"] - env_obj$t_reg[env_obj$i])/env_obj$reg_dt, 1e-5), 1-(1e-5))
 		jtmp <- env_obj$j_list[[ s ]][[ env_obj$i ]]	
 		
-		print(paste("j:", paste(round(env_obj$j_list[[ s ]][[ env_obj$i ]], digits=4), collapse=", ")))
+		
+		
+		if (env_obj$show_prints) {
+			print(paste("j:", paste(round(env_obj$j_list[[ s ]][[ env_obj$i ]], digits=4), collapse=", ")))
 
 		#choose what the behavior at beginning of time i is, based on what was observed before.
 		#ignore this, really, dont store anything for it
-		print(env_obj$y_first)
-		
+			print(env_obj$y_first)
+		}
 	
 		
 		z <- low_var_sample(wts=table(factor(env_obj$y_first[,"state.guess2"], levels=1:env_obj$nstates)), M=env_obj$npart)

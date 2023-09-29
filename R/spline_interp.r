@@ -371,13 +371,18 @@ spline_interp <- function(di, area_map=NULL, t_reg=NULL, reg_dt=120, max_dt_wo_o
 		for (s in shark_names) {
 		
 			not_na <- which(! is.na(d[,"X",s]))
-			pts <- matrix(d[not_na, c("X","Y"),s], ncol=2)
+			pts <- as.data.frame(matrix(d[not_na, c("X","Y"),s], ncol=2))
+			print(head(pts))
 			rownames(pts) <- NULL
-			pts <- sp::SpatialPointsDataFrame(coords=pts, data=data.frame(id=1:nrow(pts)))
-			pts@proj4string <- area_map@proj4string
-		
-			inside <- sp::over(pts, area_map)
-			outside <-  is.na(inside)
+			# pts <- sp::SpatialPointsDataFrame(coords=pts, data=data.frame(id=1:nrow(pts)))
+			# pts@proj4string <- area_map@proj4string
+			pts <- sf::st_as_sf(pts, coords=colnames(pts))
+			sf::st_crs(pts) <- sf::st_crs(area_map)
+				
+			# inside <- sp::over(pts, area_map)
+			# outside <-  is.na(inside)
+			outside <- ! binary_A_within_B(pts, area_map)
+			print(outside)
 			
 			d[ not_na[ outside ],,s] <- NA 
 		}

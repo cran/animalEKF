@@ -27,7 +27,7 @@ EKF_1d_interp_joint(d, npart=100, sigma_pars,
                     known_regular_step_ds=NULL, update_eachstep=FALSE,
                     update_params_for_obs_only=FALSE,
                     output_plot=TRUE, loc_pred_plot_conf=0.5,
-                    output_dir=getwd(), pdf_prefix="EKF_1D")
+                    output_dir=getwd(), pdf_prefix="EKF_1D", verbose=3)
 
 					
 }
@@ -166,6 +166,10 @@ String prefix for output PDF filename, if \code{output_plot = TRUE}.  Filename w
 }
   \item{output_dir}{
 Directory for output PDF of diagnostic plots.
+}
+  \item{verbose}{
+Integer, one of 0,1,2,3. Control of verbosity of printouts during simulation.  3 means show both printouts and plots; 2 means show plots only; 
+1 means show printouts only; 0 means show no plots or prinouts.  Final plotting will be done regardless.
 }
 }
 \value{

@@ -78,37 +78,32 @@ eff_ss <- function(p) {
   1/sum(p^2)
 }  
 
-# #this estimates by MCMC the probability of being inside the bounds
-# fraction_inside <- function(mu, cmat, nsim=100, obj) {
-    # #npart
-	
-	# adjust_mat <- matrix(0, ncol=obj$nstates, nrow=obj$npart)
-		
-	# for (p in 1:obj$npart) {
-		# for (k in 1:obj$nstates) {
-	      
-			# pts <- mvtnorm::rmvnorm(n=nsim, mean=mu[p,,k,1], sigma=cmat[p,,,k,1])
-			# colnames(pts) <- c("X","Y")
-			# pts <- sp::SpatialPoints(pts)
-			# pts@proj4string <- obj$area_map@proj4string 
-			# adjust_mat[p,k] <- mean(rgeos::gContains(obj$area_map, pts, byid=TRUE))
-		# }
-		
-	# }  
-    # adjust_mat
-# }
 
+
+binary_A_B_st_func <- function(A, B, func=sf::st_within) {
+	# binarize sf package checks; order may matter
+	ind <- as.integer(func(x=A, y=B))
+	# if is not within, returns NA
+	ind[ is.na(ind) ] <- 0
+	as.logical(ind)
+}
+
+binary_A_within_B <- function(A, B) { binary_A_B_st_func(A=A, B=B) }
+binary_A_intersects_B <- function(A, B) { binary_A_B_st_func(A=A, B=B, func=sf::st_intersects) }
 
 
 #this estimates by MCMC the probability of being inside the bounds
 fraction_inside <- function(mu, cmat, nsim=100, obj) {
         
-	pts <- mvtnorm::rmvnorm(n=nsim, mean=mu, sigma=cmat)
+	pts <- as.data.frame(mvtnorm::rmvnorm(n=nsim, mean=mu, sigma=cmat))
 	colnames(pts) <- c("X","Y")
-	pts <- sp::SpatialPoints(pts)
-	pts@proj4string <- obj$area_map@proj4string 
+	# make pts a shapefile with the same CRS as area_map
+	pts <- sf::st_as_sf(pts, coords=colnames(pts))
+	sf::st_crs(pts) <- sf::st_crs(obj$area_map)
 	
-	mean(rgeos::gContains(obj$area_map, pts, byid=TRUE))
+	# returns NA if not in the map, so replace these with 0s
+	point_is_in_map <- sapply(pts, function(x) binary_A_within_B(A=x, B=obj$area_map))
+	mean(point_is_in_map)
 
 }
 
@@ -119,21 +114,24 @@ reject_sampling <- function(mu, cmat, maxiter=500, prev_val, obj) {
 	#if (is.null(prev_val)) { print("prev_val is NULL") }
 	
 	
-    while(inside ==FALSE & iter < maxiter) {
+    while((! inside) & iter < maxiter) {
 		sim_val <- mvtnorm::rmvnorm(n=1, mean=mu, sigma=cmat)
 		new_traj <- cbind(X=c(prev_val[1], sim_val[1]), Y=c(prev_val[2], sim_val[2]))
 	   
 		if (obj$enforce_full_line_in_map) {
 						
-			new_traj <- sp::SpatialLines(list(sp::Lines(sp::Line(new_traj), ID=1)))
+			# new_traj <- sp::SpatialLines(list(sp::Lines(sp::Line(new_traj), ID=1)))
+			new_traj <- sf::st_linestring(new_traj)
 		}
 		else {
 			#just consider end point, not full line connecting them
-			new_traj <- sp::SpatialPoints(new_traj[2,,drop=FALSE])		
+			# new_traj <- sp::SpatialPoints(new_traj[2,,drop=FALSE])
+			new_traj <- sf::st_point(new_traj[2,])
 		}
-		new_traj@proj4string <- obj$area_map@proj4string
+		# new_traj@proj4string <- obj$area_map@proj4string
 		
-		inside <- rgeos::gContains(spgeom1=obj$area_map, spgeom2=new_traj)
+		inside <- binary_A_within_B(A=new_traj, B=obj$area_map)
+
 		iter <- iter + 1
 			
 	}
@@ -211,6 +209,16 @@ true_behavior_probabilities <- function(reg_step_ds, shark_names, nstates, nregi
 	
 }
 
+
+rectangular_shapefile <- function(xmin=-5000, xmax=5000, ymin=-5000, ymax=5000) {
+	# create a default rectangular shapefile if none provided
+	if (xmin >= xmax) stop('xmin must be < xmax')
+	if (ymin >= ymax) stop('ymin must be < ymax')
+
+	pts <- rbind(c(xmin, ymin), c(xmax, ymin), c(xmax, ymax), c(xmin, ymax), c(xmin, ymin))
+	sf::st_sfc(sf::st_polygon(list(pts)))
+
+}
 
 
 

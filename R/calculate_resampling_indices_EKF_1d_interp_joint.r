@@ -78,7 +78,7 @@ calculate_resampling_indices_EKF_1d_interp_joint <- function(env_obj) {
 
 	na_dens <- apply(env_obj$densities,1, function(x) any(is.na(x)))
 
-	if (any(na_dens)) {
+	if (any(na_dens) & env_obj$show_prints) {
 		print(env_obj$densities[ na_dens,])
 		#print(densities_bystate[ na_dens,])
 		for (s in env_obj$sharks_with_obs) {
@@ -114,9 +114,11 @@ calculate_resampling_indices_EKF_1d_interp_joint <- function(env_obj) {
 
 	if (nsharks_resample > 0) {
 
-		print("resampling...")
-		if (env_obj$nsharks > 1) {
-			print(env_obj$sharks_to_resample)
+		if (env_obj$show_prints) {
+			print("resampling...")
+			if (env_obj$nsharks > 1) {
+				print(env_obj$sharks_to_resample)
+			}
 		}
 		iter <- 0
 		#resample particles with weights (sum of densities across rows) for next particles
@@ -161,7 +163,7 @@ calculate_resampling_indices_EKF_1d_interp_joint <- function(env_obj) {
 		
 	}
 	else{
-		print("not resampling since effective size is above threshold")
+		if (env_obj$show_prints) print("not resampling since effective size is above threshold")
 	}
 	
 	invisible(NULL)

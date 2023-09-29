@@ -1,5 +1,19 @@
 fix_data_EKF_1d_interp_joint <- function(env_obj) {
 
+	# verbosity
+	if (! env_obj$verbose %in% 0:3) {
+		stop("verbose must be one of (0,1,2,3)")
+	}
+	env_obj$show_prints <- env_obj$verbose %in% c(1,3)
+	env_obj$show_plots <- env_obj$verbose %in% c(2,3) 
+	
+
+	# number of behavioral states
+	env_obj$nstates <- as.integer(env_obj$nstates)
+	if (! env_obj$nstates %in% c(1,2)) {
+		stop("nstates must be one of (1,2)")
+	}
+
 	# confidence plot
 	env_obj$loc_pred_plot_conf <- min(max(env_obj$loc_pred_plot_conf, 0.05), 0.95)
 	# normal 

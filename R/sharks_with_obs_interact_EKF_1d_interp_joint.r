@@ -71,13 +71,16 @@ sharks_with_obs_interact_EKF_1d_interp_joint <- function(env_obj) {
 			}#loop over particles		
 			
 			tmp <- rowSums(env_obj$num_neibs[,,s,drop=FALSE])
-			print(paste("shark",s,"maximum neighborhood size is", max(tmp)))
 			
 			env_obj$part_with_neibs[,s] <- (tmp >= env_obj$min_num_neibs)
 			
 			#print(part_with_neibs)
 			num_part_with_neibs <- sum(env_obj$part_with_neibs[,s])
-			print(paste("number with neighbors:", num_part_with_neibs))
+			
+			if (env_obj$show_prints) {
+				print(paste("shark",s,"maximum neighborhood size is", max(tmp)))
+				print(paste("number with neighbors:", num_part_with_neibs))
+			}
 			
 			#make it into fractions
 			#this is the p_k

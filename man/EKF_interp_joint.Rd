@@ -8,7 +8,7 @@ Extended Kalman Filter (EKF) for joint shark movement with interpolation
 Extended Kalman Filter (EKF) for joint shark movement with interpolation
 }
 \usage{
-EKF_interp_joint(area_map, d, npart=100, sigma_pars, tau_pars,
+EKF_interp_joint(area_map=NULL, d, npart=100, sigma_pars, tau_pars,
                  mu0_pars=list(alpha=c(-4.5 ,-2), beta=c(0,0)),
                  V0_pars=list(alpha=c(0.25, 0.25), beta=c(0.25, 0.25)), 
                  Errvar0=rep(list(diag(2)), 2),
@@ -28,12 +28,13 @@ EKF_interp_joint(area_map, d, npart=100, sigma_pars, tau_pars,
                  known_foraging_prob=NULL, known_regular_step_ds=NULL,	
                  update_eachstep=FALSE, update_params_for_obs_only=FALSE,
                  output_plot=TRUE, loc_pred_plot_conf=0.5,
-                 output_dir=getwd(), pdf_prefix="EKF_2D")
+                 output_dir=getwd(), pdf_prefix="EKF_2D", verbose=3)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{area_map}{
-Shapefile within which the observations are located (optional).
+Shapefile within which the observations are located (optional).  Should be the output of applying \code{sf::st_geometry} on an object of class \code{sf}.
+If input is NULL, a default rectangular one is created that contains the observed X-Y points in \code{d}.
 }
   \item{d}{
 Dataset of observations, with required variable columns: tag, X, Y, logvelocity, speed, turn.angle.rad, region (optional), date_as_sec, time_to_next, state.guess2, prev.guess2.
@@ -202,6 +203,10 @@ String prefix for output PDF filename, if \code{output_plot = TRUE}.  Filename w
 }
   \item{output_dir}{
 Directory for output PDF of diagnostic plots.
+}
+  \item{verbose}{
+Integer, one of 0,1,2,3. Control of verbosity of printouts during simulation.  3 means show both printouts and plots; 2 means show plots only; 
+1 means show printouts only; 0 means show no plots or prinouts.  Final plotting will be done regardless.
 }
 }
 \value{

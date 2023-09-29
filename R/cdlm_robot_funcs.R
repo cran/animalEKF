@@ -197,7 +197,7 @@ pred_loc <- function(Ydist1, wts, xlims, xticks, before_after="before", colors, 
 						arrows(y0=1.09*npart, y1=1.09*npart, x0=yt[1], x1= yt[2], length=.1, lty=1.5)
 						if (is.null(Ydist2)) {
 						
-							if (sep_col==FALSE) {
+							if (! sep_col) {
 								c1 <- c("lightgrey","black","black","black")
 								bg1 <- c(NA, "red", NA, NA)
 								pch1 <- c(15,22,19,NA)
@@ -504,11 +504,11 @@ pred_loc_dens_2D <- function(yt, bds, locs)  {
 					#do this to pass check
 					#X <- Y <- NULL
 
-                    g <- ggplot(data=locs, aes_string(x="X", y="Y")) + theme_bw()
+                    g <- ggplot(data=locs, aes(x=.data$X, y=.data$Y)) + theme_bw()
 
 					g <- g + scale_x_continuous(limits=bds[,"X"]) + scale_y_continuous(limits=bds[,"Y"]) + theme(axis.ticks.length=unit(.25, "cm"))
-					g <- g + stat_density2d(aes_string(fill="..density.."), geom="tile", contour=FALSE)+ scale_fill_gradient(low="white", high="black") + guides(fill=FALSE)
-					g <- g + geom_path(data=make_segments(as.data.frame(yt)),  aes_string(x="X", y="Y"), colour="red", lwd=1.5) + theme(legend.position="bottom", legend.key.width=unit(1.5,"cm"))
+					g <- g + stat_density2d(aes(fill=after_stat(!!str2lang("density"))), geom="tile", contour=FALSE)+ scale_fill_gradient(low="white", high="black") + guides(fill=FALSE)
+					g <- g + geom_path(data=make_segments(as.data.frame(yt)),  aes(x=.data$X, y=.data$Y), colour="red", lwd=1.5) + theme(legend.position="bottom", legend.key.width=unit(1.5,"cm"))
 					g <- g + ggtitle("Density of particle and true unobserved (red) locations")
 					g <- g + theme(plot.title=element_text(size=14.25, face="bold", hjust=0.5, margin=margin(b=20, t=20)), axis.text=element_text(size=12))
 					g <- g + theme(plot.margin=unit(c(0.2, 1.2, 0.52, 0.42), "cm"))

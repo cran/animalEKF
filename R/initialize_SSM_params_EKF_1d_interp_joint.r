@@ -43,7 +43,7 @@ initialize_SSM_params_EKF_1d_interp_joint <- function(env_obj) {
 	env_obj$XY_errvar <- list()
 	#alpha, beta, k parameters, each index is for one state,
 
-	print(env_obj$alpha0_pars)
+	if (env_obj$show_prints) print(env_obj$alpha0_pars)
 	
 	# env_obj$mu0_range <- range(env_obj$alpha0$mu0)
 	# if (diff(env_obj$mu0_range)==0) { env_obj$mu0_range <- env_obj$mu0_range + c(-1/3, 1/3)*env_obj$mu0_range[ 1 ] } 

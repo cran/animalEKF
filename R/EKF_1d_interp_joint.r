@@ -8,7 +8,8 @@ EKF_1d_interp_joint <- function(d,
 				smooth_parameters=TRUE, reg_dt=120, max_int_wo_obs=NULL, resamp_full_hist=TRUE, 
 				compare_with_known=FALSE, known_trans_prob=NULL, known_foraging_prob=NULL, known_regular_step_ds=NULL,
 				update_eachstep=FALSE, update_params_for_obs_only=FALSE,
-				output_plot=TRUE, loc_pred_plot_conf=0.5, output_dir=getwd(), pdf_prefix="EKF_1D") {
+				output_plot=TRUE, loc_pred_plot_conf=0.5, output_dir=getwd(), pdf_prefix="EKF_1D",
+				verbose=3) {
 
 	# save old settings and reset
 	old_pars <- par(mfrow=par()$mfrow, mfcol=par()$mfcol, las=par()$las)
@@ -27,7 +28,7 @@ EKF_1d_interp_joint <- function(d,
 	}
 	
 
-	myenv$npart <- max(2, myenv$npart)
+	myenv$npart <- max(2, as.integer(myenv$npart))
 	myenv$nregions <- 1
 	myenv$states <- myenv$d$state.guess2
 	myenv$next_states <- myenv$d$next.guess2
@@ -89,8 +90,11 @@ EKF_1d_interp_joint <- function(d,
 			if (nrow(myenv$ynext) > 0) {
 				myenv$ynext <- myenv$ynext[ order(rownames(myenv$ynext), myenv$ynext[,"date_as_sec",drop=FALSE]), ,drop=FALSE]
 				yobs <- nrow(myenv$ynext)
-				print("observations in interval")
-				print(myenv$ynext[,c("X","velocity","date_as_sec","t_intervals","state.guess2","shark_obs_index"), drop=FALSE])
+				
+				if (myenv$show_prints) {
+					print("observations in interval")
+					print(myenv$ynext[,c("X","velocity","date_as_sec","t_intervals","state.guess2","shark_obs_index"), drop=FALSE])
+				}
 			}
 		}
 		
@@ -112,19 +116,21 @@ EKF_1d_interp_joint <- function(d,
 		#we need to do two things: for sharks that are 'recent' but without observations there, we have to simulate their positions by uniform
 		#if there is a shark with actual observations, we have to simulate and resample based on that.
 		
-		print(paste("Regular step", myenv$i))
+		if (myenv$show_prints) {
 		
-		if (myenv$nsharks > 1) {
-			if (length(myenv$sharks_first_obs)) { print(paste("sharks first observed:",paste(myenv$sharks_first_obs, collapse=" "))) }
-			if (length(myenv$sharks_to_sim)) { print(paste("sharks to be simulated:", paste(myenv$sharks_to_sim, collapse=" "))) }
-			if (length(myenv$sharks_with_obs)) { print(paste("sharks with obs:",paste(myenv$sharks_with_obs, collapse=" "))) }
+			print(paste("Regular step", myenv$i))
+		
+			if (myenv$nsharks > 1) {
+				if (length(myenv$sharks_first_obs)) { print(paste("sharks first observed:",paste(myenv$sharks_first_obs, collapse=" "))) }
+				if (length(myenv$sharks_to_sim)) { print(paste("sharks to be simulated:", paste(myenv$sharks_to_sim, collapse=" "))) }
+				if (length(myenv$sharks_with_obs)) { print(paste("sharks with obs:",paste(myenv$sharks_with_obs, collapse=" "))) }
+			}
 		}
 
 		
 		if (length(myenv$sharks_first_obs)) {
-			print("generating first observations...")
-	
-				
+			if (myenv$show_prints) print("generating first observations...")
+					
 			sharks_first_obs_EKF_1d_interp_joint(env_obj=myenv)
 		
 		
@@ -169,11 +175,11 @@ EKF_1d_interp_joint <- function(d,
 		if (length(myenv$sharks_to_sim)) {
 
 			
-			print("simulating observations...")	
+			if (myenv$show_prints) print("simulating observations...")	
 						
 			if (myenv$interact) {
 				myenv$temp_neib_range <- which((myenv$t_reg < myenv$t_reg[ myenv$i ]) & (myenv$t_reg >= (myenv$t_reg[ myenv$i ] - myenv$time_radius)))
-				print(paste("temporal range of neighborhood: observations", paste(myenv$temp_neib_range, collapse=" ")))
+				if (myenv$show_prints) print(paste("temporal range of neighborhood: observations", paste(myenv$temp_neib_range, collapse=" ")))
 			}
 			
 			myenv$part_with_neibs <- matrix(FALSE, ncol=length(myenv$sharks_to_sim), nrow=myenv$npart)
@@ -231,7 +237,7 @@ EKF_1d_interp_joint <- function(d,
 			
 			myenv$other_type <- "sim"
 			myenv$before_samp <- TRUE
-			plot_diagnostics_step_EKF_1d_interp_joint(env_obj=myenv)					
+			if (myenv$show_plots) plot_diagnostics_step_EKF_1d_interp_joint(env_obj=myenv)					
 						
 	
 		}# if no yobs   
@@ -239,7 +245,7 @@ EKF_1d_interp_joint <- function(d,
         #basically what we do here is assume that there is a single state lambda for x_{t-1}.  Then see which values of the observed match that. 
 		if (length(myenv$sharks_with_obs)) {
 		
-			print("simulating to match observations...")
+			if (myenv$show_prints) print("simulating to match observations...")
 			#different sharks have diff numbers of observations
 			
 			myenv$yobs_sharks <- table(rownames(myenv$ynext))
@@ -248,7 +254,7 @@ EKF_1d_interp_joint <- function(d,
 					
 		    obs_num <- which(myenv$d[,"t_intervals"] == myenv$i)
 			obs_range <- ifelse(length(obs_num)==1, paste("observation", obs_num), paste("observations", paste(min(obs_num), max(obs_num),sep="-")))
-			print(paste("Step", myenv$i,":",obs_range))
+			if (myenv$show_prints) print(paste("Step", myenv$i,":",obs_range))
 			
 			
 			if (myenv$time_dep_trans) {	
@@ -293,7 +299,7 @@ EKF_1d_interp_joint <- function(d,
 			myenv$before_samp <- TRUE
 
 			
-			plot_diagnostics_step_EKF_1d_interp_joint(env_obj=myenv)
+			if (myenv$show_plots) plot_diagnostics_step_EKF_1d_interp_joint(env_obj=myenv)
 	
 			#interaction parameters
 			
@@ -303,7 +309,7 @@ EKF_1d_interp_joint <- function(d,
 			if (myenv$interact) {
 				
 				myenv$temp_neib_range <- which((myenv$t_reg < myenv$t_reg[ myenv$i ]) & (myenv$t_reg >= (myenv$t_reg[ myenv$i ] - myenv$time_radius)))
-				print(paste("temporal range of neighborhood: observations", paste(myenv$temp_neib_range, collapse=" ")))
+				if (myenv$show_prints) print(paste("temporal range of neighborhood: observations", paste(myenv$temp_neib_range, collapse=" ")))
 				
 				sharks_with_obs_interact_EKF_1d_interp_joint(env_obj=myenv)
 												
@@ -313,21 +319,23 @@ EKF_1d_interp_joint <- function(d,
 			calculate_resampling_indices_EKF_1d_interp_joint(env_obj=myenv)
 			
 			if (length(myenv$sharks_to_resample) > 0) {
-				print(paste("Unique resampling indices selected:", paste(myenv$resample_history[myenv$i, myenv$sharks_with_obs] * myenv$npart, collapse=" ")))
 				
-				if (myenv$nsharks > 1) {
-		
-					print("sharks to resample:")
-					print(myenv$sharks_to_resample)	
+				if (myenv$show_prints) {
+					print(paste("Unique resampling indices selected:", paste(myenv$resample_history[myenv$i, myenv$sharks_with_obs] * myenv$npart, collapse=" ")))
+				
+					if (myenv$nsharks > 1) {
+			
+						print("sharks to resample:")
+						print(myenv$sharks_to_resample)	
+					}			
 				}			
-								
 				reindex_arrays_after_resampling_EKF_1d_interp_joint(env_obj=myenv)
 				
 				myenv$before_samp <- FALSE
 				myenv$other_type <- "obs"
 				
 				
-				plot_diagnostics_step_EKF_1d_interp_joint(env_obj=myenv)										   
+				if (myenv$show_plots) plot_diagnostics_step_EKF_1d_interp_joint(env_obj=myenv)										   
 			}
 			   
 											
@@ -416,7 +424,7 @@ EKF_1d_interp_joint <- function(d,
 		for (s in unique(c(myenv$sharks_first_obs, myenv$sharks_to_sim, myenv$sharks_with_obs))) {
 			if (!((myenv$i + 1) %in% myenv$shark_valid_steps[[ s ]])) {
 		
-				print(paste("shark",s))
+				if (myenv$show_prints) print(paste("shark",s))
 		
 				for (p in 1:myenv$npart) {
 					z <- myenv$Xpart_history[myenv$i, "lambda", p, s]
@@ -450,7 +458,7 @@ EKF_1d_interp_joint <- function(d,
 	#problem is how does this because if we smooth this way we lose the connection of 
 
 	if (myenv$smoothing) {
-		print("performing smoothing of full history joint density of X...")
+		if (myenv$show_prints) print("performing smoothing of full history joint density of X...")
 		
 
 		smoothing_EKF_1d_interp_joint(env_obj=myenv)
@@ -490,12 +498,13 @@ EKF_1d_interp_joint <- function(d,
 
 	if (myenv$nstates > 1) {
 	
-		print("Actual distribution of lambdas:")
-		print(round(100*(table(myenv$states)/length(myenv$states))))
-		print("Particle distribution of lambdas:")
-		tmp <- table(factor(myenv$lambda_matrix, levels=1:myenv$nstates))
-		print(round(100*tmp/sum(tmp)))
-				
+		if (myenv$show_prints) {
+			print("Actual distribution of lambdas:")
+			print(round(100*(table(myenv$states)/length(myenv$states))))
+			print("Particle distribution of lambdas:")
+			tmp <- table(factor(myenv$lambda_matrix, levels=1:myenv$nstates))
+			print(round(100*tmp/sum(tmp)))
+		}	
 		#final diagnostics:
 
 		#agree_final <- apply(lambda_matrix[,t_intervals,] == matrix(states, ncol=maxStep, nrow=npart, byrow=TRUE), 2, mean)
@@ -536,7 +545,7 @@ EKF_1d_interp_joint <- function(d,
 					   "sharks_to_resample", "mu0_range", "before_samp", "part_with_neibs", "output_plot", "maxStep", "fix_smoothed_behaviors",
 					   "MuY", "SigY", "Particle_errvar0", "pred_xt_loc", "dirichlet_init", "nregions", "reg_dt", "Particle_err_df", "Particle_errvar",
 					   "XY_errvar_draw", "step_skipped", "smooth_parameters", "SSquare_particle", "num_neibs", "Particle_errvar_smoothed",
-					   "mk_actual_history")
+					   "mk_actual_history", "verbose")
 	
 	
 	unneeded_vars <- unique(unneeded_vars)

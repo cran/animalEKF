@@ -10,13 +10,13 @@ sharks_first_obs_EKF_interp_joint <- function(env_obj) {
 		env_obj$j_list[[ s ]][[ env_obj$i ]] <- pmin(pmax((env_obj$y_first[,"date_as_sec"] - env_obj$t_reg[env_obj$i])/env_obj$reg_dt, 1e-5), 1-(1e-5))
 		jtmp <- env_obj$j_list[[ s ]][[ env_obj$i ]]				
 
-		
-		print(paste("j:", paste(round(env_obj$j_list[[ s ]][[ env_obj$i ]], digits=4), collapse=", ")))
-		
-		#choose what the behavior at beginning of time i is, based on what was observed before.
-		#ignore this, really, dont store anything for it
-		print(env_obj$y_first)
-	
+		if (env_obj$show_prints) {
+			print(paste("j:", paste(round(env_obj$j_list[[ s ]][[ env_obj$i ]], digits=4), collapse=", ")))
+			
+			#choose what the behavior at beginning of time i is, based on what was observed before.
+			#ignore this, really, dont store anything for it
+			print(env_obj$y_first)
+		}
 
 		num_reject <- c()
 		#approximate a draw of the behavior of the first one	

@@ -67,7 +67,7 @@ plot_diagnostics_step_EKF_interp_joint <- function(env_obj) {
 	
 		#logv density
 		plot(x=-5, y=-5, xlim=range(pl_logv), ylim=c(0, ymax_logv), xlab="alpha", ylab="density", 
-			 main=paste("Log-speed dens, shark", ss, ", t=", env_obj$i, sep=""), las=1, cex.main=0.8)
+			 main=paste("Log-speed dens, ", ss, ", t=", env_obj$i, sep=""), las=1, cex.main=0.8)
 		abline(h=0, lwd=0.25)
 
 		for (k in 1:env_obj$nstates) {
@@ -83,7 +83,7 @@ plot_diagnostics_step_EKF_interp_joint <- function(env_obj) {
 		
 		#turn density
 		plot(x=-5, y=-5, xlim=c(-pi, pi), ylim=c(0, ymax_turn),
-			 xlab="beta", ylab="density", main=paste("Turn (rad) dens, shark", ss, ", t=", env_obj$i, sep=""), xaxt="n", las=1, cex.main=0.8)
+			 xlab="beta", ylab="density", main=paste("Turn (rad) dens, ", ss, ", t=", env_obj$i, sep=""), xaxt="n", las=1, cex.main=0.8)
 		abline(h=0, lwd=0.25)
 		axis(side=1, at=seq(-pi,pi, by=pi/2), labels=c(expression(-pi), expression(paste(-pi, "/", 2)), 0, expression(paste(pi, "/", 2)), expression(pi)))
 		

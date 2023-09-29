@@ -1,5 +1,20 @@
 fix_data_EKF_interp_joint <- function(env_obj) {
 
+	# verbosity
+	if (! env_obj$verbose %in% 0:3) {
+		stop("verbose must be one of (0,1,2,3)")
+	}
+	env_obj$show_prints <- env_obj$verbose %in% c(1,3)
+	env_obj$show_plots <- env_obj$verbose %in% c(2,3) 
+	
+	
+	# number of behavioral states
+	env_obj$nstates <- as.integer(env_obj$nstates)
+	if (! env_obj$nstates %in% c(1,2)) {
+		stop("nstates must be one of (1,2)")
+	}
+
+
 	# confidence plot
 	env_obj$loc_pred_plot_conf <- min(max(env_obj$loc_pred_plot_conf, 0.05), 0.95)
 
@@ -27,10 +42,13 @@ fix_data_EKF_interp_joint <- function(env_obj) {
 	# make sure if truncate, that all observed locations are inside the map
 	if (env_obj$truncate_to_map) {
 	
-		observed_points <- sp::SpatialPoints(env_obj$d[,c("X","Y"),drop=FALSE])
-		observed_points@proj4string <- env_obj$area_map@proj4string   
- 
-		inside <- rgeos::gContains(env_obj$area_map, observed_points)
+		# observed_points <- sp::SpatialPoints(env_obj$d[,c("X","Y"),drop=FALSE])
+		# observed_points@proj4string <- env_obj$area_map@proj4string   
+ 		# inside <- rgeos::gContains(env_obj$area_map, observed_points)
+		observed_points <- sf::st_as_sf(env_obj$d[,c("X","Y"),drop=FALSE], coords=c("X", "Y"))
+		sf::st_crs(observed_points) <- sf::st_crs(env_obj$area_map)
+		inside <- binary_A_within_B(observed_points, env_obj$area_map)
+		
 		if (any(inside == FALSE)) {
 			print("Truncation to map will be performed, but the following observed points were outside the map:")
 			print(env_obj$d[inside == FALSE,,drop=FALSE])
@@ -42,10 +60,15 @@ fix_data_EKF_interp_joint <- function(env_obj) {
 		
 		# now do the same with true locations, if provided
 		if (env_obj$compare_with_known) {
-			true_points <- sp::SpatialPoints(env_obj$known_regular_step_ds[,c("X","Y"),drop=FALSE])
-			true_points@proj4string <- env_obj$area_map@proj4string   
+			# true_points <- sp::SpatialPoints(env_obj$known_regular_step_ds[,c("X","Y"),drop=FALSE])
+			# true_points@proj4string <- env_obj$area_map@proj4string   
  
-			inside <- rgeos::gContains(env_obj$area_map, true_points)
+			# inside <- rgeos::gContains(env_obj$area_map, true_points)
+			true_points <- sf::st_as_sf(env_obj$known_regular_step_ds[,c("X","Y"),drop=FALSE], coords=c("X", "Y"))
+			sf::st_crs(true_points) <- sf::st_crs(env_obj$area_map)
+			inside <- binary_A_within_B(true_points, env_obj$area_map)
+
+			
 			if (any(inside == FALSE)) {
 				print("Truncation to map will be performed, but the following true points were outside the map:")
 				print(env_obj$known_regular_step_ds[inside == FALSE,,drop=FALSE])
@@ -195,8 +218,8 @@ fix_data_EKF_interp_joint <- function(env_obj) {
 	}
 
 	
-	print(paste("env_obj$nstates:", env_obj$nstates))
-	print(paste("env_obj$interactions", env_obj$interact))
+	print(paste("nstates:", env_obj$nstates))
+	print(paste("interactions", env_obj$interact))
 
 	if (env_obj$update_params_for_obs_only) {
 		env_obj$update_eachstep <- FALSE		
@@ -281,7 +304,7 @@ fix_data_EKF_interp_joint <- function(env_obj) {
 
 	#env_obj$nstates <- max(length(unique(states)), env_obj$nstates)
 
-	print(sort(colnames(env_obj$d)))
+	# print(sort(colnames(env_obj$d)))
 
 	env_obj$d <- env_obj$d[,c("rowid","shark_obs_index","X","Y","log_speed","date_as_sec",
 							   "speed","turn.angle.rad","bearing.to.east.tonext.rad","region","time_to_next","dx_to_next",

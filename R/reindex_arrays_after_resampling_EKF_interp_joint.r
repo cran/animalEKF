@@ -30,7 +30,9 @@ reindex_arrays_after_resampling_EKF_interp_joint <- function(env_obj) {
 			env_obj$transition_mat[[ s ]] <- env_obj$transition_mat[[ s ]][ env_obj$indices[,s] ] 
 			env_obj$state_counts[,,s] <- env_obj$state_counts[ env_obj$indices[,s],,s, drop=FALSE]
 					
-			env_obj$densities_bystate[[ s ]] <- apply(env_obj$densities_bystate[[ s ]], 2, function(x) x/env_obj$state_favor)
+			print(env_obj$densities_bystate[[ s ]])
+			# need to remove state favoring, that was just for the resampling, so divide by factor
+			env_obj$densities_bystate[[ s ]] <- t(apply(env_obj$densities_bystate[[ s ]], 1, function(x) x/env_obj$state_favor))
 		}
 		
 		env_obj$Pk[,,,, s] <- env_obj$Pk[,,, env_obj$indices[,s], s, drop=FALSE]

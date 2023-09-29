@@ -10,7 +10,7 @@ Simulation and interpolation of trajectories.
 \code{interp_trajectory_joint} interpolates regular steps to irregular ones drawn from a log-normal distribution.
 }
 \usage{
-sim_trajectory_joint(area_map, centroids=matrix(c(0,0), ncol=2), 
+sim_trajectory_joint(area_map=NULL, centroids=matrix(c(0,0), ncol=2), 
                      transition_matrices=list(matrix(c(10,3,2,9), 
                      ncol=2, byrow=TRUE)), 
                      mu0_pars=list(alpha=c(-4 ,-1.6), beta=c(0,0)), 
@@ -33,7 +33,8 @@ interp_trajectory_joint(d, nstates, one_d, dt_lnorm_mu=5, dt_lnorm_sd=1,
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{area_map}{
-Shapefile within which the observations are located (optional).
+Shapefile within which the observations are located (optional).  Should be the output of applying \code{sf::st_geometry} on an object of class \code{sf}.
+If input is NULL, a default rectangular shapefile is created.
 }
   \item{centroids}{
 Matrix with two columns specifying the centroids of regions.  The number of rows specifies the number of regions.
@@ -114,42 +115,44 @@ the time gaps rather than having them be randomly generated.
 \examples{
 	
 
-#prepare shapefile
-bolsachica <- rgdal::readOGR(system.file("shapes/FTB_lines.shp", package="animalEKF")[1])
-bcrds <- sp::coordinates(bolsachica)[[ 1 ]][[ 1 ]]
-colnames(bcrds) <- c("X","Y")
-bolsachica <- vector(mode="list", length=1)
-bolsachica[[ 1 ]] <- Polygons(list(Polygon(bcrds)), ID="1")
-bolsachica <- SpatialPolygons(bolsachica)
+# read shapefile and convert into a Polygon
+bolsachica <- sf::st_read(system.file("shapes/FTB_lines.shp", package="animalEKF")[1])
+bolsachica <- sf::st_polygonize(bolsachica)
 
-island <- rgdal::readOGR(system.file("shapes/FTB_island.shp", package="animalEKF")[1])
-bolsachica@proj4string <- island@proj4string
-bolsachica <- rgeos::gDifference(bolsachica, island)
-bolsachica@proj4string <- island@proj4string
+island <- sf::st_read(system.file("shapes/FTB_island.shp", package="animalEKF")[1])
+# the actual available room for movement is the area in the water, subtracting the island inside
+bolsachica <- sf::st_difference(sf::st_geometry(bolsachica), sf::st_geometry(island))
 
 
-#define Voronoi tessellation of regions, here randomly selected
-regions <- as.data.frame(sp::spsample(x=bolsachica, n=3, type="regular"))
+# sample 5 points approximately equally spaced within the shapefile, as region centroids
+regions <- sf::st_sample(x=sf::st_geometry(bolsachica), size=5, type="regular", exact=TRUE)
+# extract the coordinates
+regions <- as.data.frame(sf::st_coordinates(regions)[, c("X","Y")])
 
-nsharks <- 4
+#define Voronoi tessellation tile in which to start shark paths
+vortess <- deldir::deldir(x=regions[,"X"], y=regions[,"Y"], wlines="tess", 
+						  plotit=FALSE, suppressMsge=TRUE)
+# convert these to a set of Polygons, and choose one of them as the starting polygon
+vtiles <- sf::st_as_sf(tess2spat(vortess))
+sf::st_crs(vtiles) <- sf::st_crs(bolsachica)
+# extract only the 3rd tile
+# note, want to have the simulation paths spread out, so a given draw may result in
+# cramped and thus hard to estimate paths
 
-#define Voronoi tessellation in which to start shark paths
-vortess <- deldir::deldir(x=regions[,1], y=regions[,2], wlines="tess", 
-							plotit=FALSE, suppressMsge=TRUE)
-vtiles <- tess2spat(vortess)
-vtiles@proj4string <- island@proj4string
+starting_polygon <- sf::st_sfc(vtiles[[1]][[3]], crs=sf::st_crs(vtiles))
+starting_polygon <- sf::st_intersection(sf::st_geometry(bolsachica),
+						sf::st_geometry(starting_polygon))
 
 #define list of transition matrices between behaviors
-
 
 tmat_list <- list(matrix(c(8, 2, 2, 4), ncol=2, byrow=TRUE),
                   matrix(c(1.5*5, 1.5*1, 3, 3), ncol=2, byrow=TRUE),
                   matrix(c(7, 1, 1, 7), ncol=2, byrow=TRUE))
 
-#generate 4-shark simulated trajectory with 200 regular steps of length 120 seconds.  
+#generate 4-shark simulated trajectory with 100 regular steps of length 120 seconds.  
 #Sharks 3 and 4 will be interacting with the others, but 1 and 2 will not.
 			  
-	
+nsharks <- 4	
 		
 #simulate trajectory
 #setting gen_irreg=TRUE generates an irregular trajectory from the regular-step one
@@ -163,23 +166,18 @@ tmat_list <- list(matrix(c(8, 2, 2, 4), ncol=2, byrow=TRUE),
 #note that the simulation may time out trying to draw points in this starting polygon that end 
 #up in the shapefile boundary
 
-# only estimate movement on first 25 steps
-# for better results, npart should be set higher, like 150 or more
-nsteps_sim <- 200
-nsteps_estimate <- 25
-npart <- 50
+nsteps_sim <- 100
 reg_dt <- 120
 
 
-\donttest{	
 
-sim_4sharks <- sim_trajectory_joint(area_map=bolsachica, centroids=regions, 
+sim_4sharks <- sim_trajectory_joint(area_map=sf::st_geometry(bolsachica), centroids=regions, 
                                     transition_matrices=tmat_list, nsharks=nsharks,
                                     mu0_pars=list(alpha=c(-4 ,-1.6), beta=c(0,0)), 
                                     var0_pars=list(alpha=c(1,0.25), beta=c(1,.25)),
                                     N=nsteps_sim, nstates=2, reg_dt=reg_dt,
-                                    gen_irreg=FALSE,one_d=FALSE,
-                                    starting_polygon=vtiles[ 1 ], interact=TRUE, 
+                                    gen_irreg=FALSE, one_d=FALSE,
+                                    starting_polygon=starting_polygon, interact=TRUE, 
                                     interact_pars=list(interacting_sharks=c(3:4),
                                     time_radius=60*30, spat_radius=150,
                                     min_num_neibs=10,
@@ -229,6 +227,8 @@ for (ss in shark_names) {
     lines(interp_ds[ interp_ds$tag == ss ,c("X","Y")], col=shark_colors[ss])
 }
 
+
+\donttest{	
 		
 #try to recover EKF with steps at the original 120 seconds
 #use the original simulated transition and foraging probabilities for comparison		
@@ -247,12 +247,18 @@ Errvar_init2 <- 15*20*bmat
 #particle error
 Particle_err_init <- 0.5*20*bmat
 		
+# only estimate movement on first 5 steps
+# for better results, npart should be set higher, like 150 or more
+nsteps_estimate <- 5
+npart <- 15		
+		
 		
 #again, if you use gen_irreg=TRUE in sim_trajectory_joint,
 #the input 'd' argument should be sim_4sharks$di or interp_ds
 
 #NOTE: user should set output_plot=TRUE to see PDF,
-#for purposes of package testing we set it to FALSE
+#for purposes of package testing we set it to FALSE 
+# if FALSE, plots will still appear in the console
 
 
 ekf_interp_mod <- EKF_interp_joint(d=interp_ds, npart=npart, 

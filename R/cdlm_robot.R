@@ -324,7 +324,7 @@ server=shinyServer(function(input, output, session)
 							ydens_range_wts <- c(0, max(params$wts[input$iter,])*1.2)
 
 							
-							if (params$is_new_step[ input$iter ]==FALSE & params$is_new_step[ input$iter+1 ]==TRUE) {
+							if ((! params$is_new_step[ input$iter ]) & params$is_new_step[ input$iter+1 ]) {
 						
 							
 								invalidateLater(millis=render_delay_step)
@@ -371,7 +371,7 @@ server=shinyServer(function(input, output, session)
 						
 							
 							
-							if (params$is_new_step[ input$iter ]==FALSE & params$is_new_step[ input$iter + 1 ]==TRUE) {
+							if ((! params$is_new_step[ input$iter ]) & params$is_new_step[ input$iter + 1 ]) {
 								
 								invalidateLater(millis=render_delay_step)
 								isolate(params$locs_counter <- min(input$npart, params$locs_counter + 1))

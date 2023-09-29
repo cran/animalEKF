@@ -36,10 +36,10 @@ d <- as.data.frame(cbind(X=runif(50), Y=runif(50)))
 dseg <- d
 dseg[ sample(20),] <- NA
 
-g <- ggplot(d, aes_string(x="X", y="Y")) + theme_bw() 
-g <- g + stat_density2d(aes_string(fill="..density.."), geom="tile", contour=FALSE)
+g <- ggplot(d, aes(x=.data$X, y=.data$Y)) + theme_bw() 
+g <- g + stat_density2d(aes(fill=after_stat(!!str2lang("density"))), geom="tile", contour=FALSE)
 g <- g + scale_fill_gradient(low="white", high="black") + theme(legend.position="bottom")
-g <- g + geom_path(data=make_segments(xy=dseg), aes_string(x="X", y="Y"), colour="red", lwd=1.5) 
+g <- g + geom_path(data=make_segments(xy=dseg), aes(x=.data$X, y=.data$Y), colour="red", lwd=1.5) 
 g
 
 }

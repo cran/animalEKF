@@ -107,7 +107,7 @@ sharks_with_obs_sim_EKF_interp_joint <- function(env_obj) {
 		shark_rows <- rownames(env_obj$ynext) == s
 		env_obj$j_list[[ s ]][[ env_obj$i ]] <- pmin(pmax((env_obj$ynext[shark_rows,"date_as_sec"] - env_obj$t_reg[env_obj$i])/env_obj$reg_dt, 1e-5), 1-(1e-5))
 				
-		print(paste("j:", paste(round(env_obj$j_list[[ s ]][[ env_obj$i ]], digits=4), collapse=", ")))
+		if (env_obj$show_prints) print(paste("j:", paste(round(env_obj$j_list[[ s ]][[ env_obj$i ]], digits=4), collapse=", ")))
 				
 		
 		env_obj$MuY[[ s ]] <- array(NA, dim=c(2, env_obj$yobs_sharks[ s ], env_obj$nstates, env_obj$npart), dimnames=list(c("X","Y"), 1:env_obj$yobs_sharks[ s ], env_obj$state_names, env_obj$pnames)) 

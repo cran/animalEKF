@@ -64,7 +64,7 @@ smoothing_EKF_interp_joint <- function(env_obj) {
 	
 		part_with_neibs[,] <- FALSE
 		
-		if ((i %%3)==0) { print(paste("smoothing step",i)) }
+		if ((i %%3)==0 & env_obj$show_prints) { print(paste("smoothing step",i)) }
 		
 		valid_sharks <- sapply(smooth_steps, function(x) i %in% x)
 		valid_sharks <- names(valid_sharks[ valid_sharks == TRUE ])

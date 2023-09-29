@@ -99,7 +99,7 @@ calculate_resampling_indices_EKF_interp_joint <- function(env_obj) {
 	colnames(env_obj$densities) <- env_obj$sharks_with_obs
 	na_dens <- apply(env_obj$densities, 1, function(x) any(is.na(x)))
 	
-	if (any(na_dens)) {
+	if (any(na_dens) & env_obj$show_prints) {
 		print(env_obj$densities[ na_dens,])
 		#print(env_obj$densities_bystate[ na_dens,])
 		for (s in env_obj$sharks_with_obs) {
@@ -118,7 +118,7 @@ calculate_resampling_indices_EKF_interp_joint <- function(env_obj) {
 	eff_size <- eff_ss(p=rowSums(pmax(env_obj$densities, 1e-15, na.rm=TRUE)))
 	env_obj$eff_size_hist[env_obj$i, s] <- eff_size
 	
-	print(paste("Effective size is", round(eff_size, 1)))
+	if (env_obj$show_prints) print(paste("Effective size is", round(eff_size, 1)))
 
 	if (eff_size >= env_obj$npart * env_obj$neff_sample) {
 		#if effective size is too big, check if any are on the final obs, in which case resample anyhow
@@ -136,9 +136,11 @@ calculate_resampling_indices_EKF_interp_joint <- function(env_obj) {
 	#if end up resampling
 	if (nsharks_resample > 0) {
 		
-		print("resampling...")
-		if (env_obj$nsharks > 1) {
-			print(env_obj$sharks_to_resample)
+		if (env_obj$show_prints) {
+			print("resampling...")
+			if (env_obj$nsharks > 1) {
+				print(env_obj$sharks_to_resample)
+			}
 		}
 		#indices <- rep(0,env_obj$npart)
 		#sample separately by shark
@@ -187,7 +189,7 @@ calculate_resampling_indices_EKF_interp_joint <- function(env_obj) {
 		
 	}
 	else{
-		print("not resampling since effective size is above threshold")
+		if (env_obj$show_prints) print("not resampling since effective size is above threshold")
 	}
 
 	invisible(NULL)

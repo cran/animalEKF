@@ -533,7 +533,7 @@ server=shinyServer(function(input, output, session)
 						params$vel_guess["orig",input$iter+1,kk,] <- rnorm(n=input$npart, mean=params$mu_guess["orig",input$iter+1,kk,], sd=sqrt(input$vel_var))      
 					}
 					
-				    if (input$tp_known==FALSE) {
+				    if (! input$tp_known) {
 						params$trans_draws["1to",1:2,"orig",input$iter,] <- apply(params$dir_params[c("a11","a12"),"orig",input$iter,], 2, function(x) MCMCpack::rdirichlet(n=1, alpha=x))
 						params$trans_draws["2to",1:2,"orig",input$iter,] <- apply(params$dir_params[c("a21","a22"),"orig",input$iter,], 2, function(x) MCMCpack::rdirichlet(n=1, alpha=x))
 					}

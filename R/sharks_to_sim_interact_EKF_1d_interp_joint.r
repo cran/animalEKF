@@ -40,12 +40,14 @@ sharks_to_sim_interact_EKF_1d_interp_joint <- function(env_obj) {
 		
 		tmp <- rowSums(num_neibs)
 		
-		print(paste("shark", env_obj$s,"maximum neighborhood size is", max(tmp)))
 		
 		env_obj$part_with_neibs[, env_obj$s] <- (tmp >= env_obj$min_num_neibs)
 		num_part_with_neibs <- sum(env_obj$part_with_neibs[, env_obj$s])
 		
-		print(paste("number with neighbors:", num_part_with_neibs))
+		if (env_obj$show_prints) {
+			print(paste("shark", env_obj$s,"maximum neighborhood size is", max(tmp)))
+			print(paste("number with neighbors:", num_part_with_neibs))
+		}
 		
 		if (num_part_with_neibs > 0) {
 		

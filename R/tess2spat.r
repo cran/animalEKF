@@ -12,5 +12,4 @@ tess2spat <- function(obj, idvec=NULL) {
 		partition[[i]] <- sp::Polygons(list(sp::Polygon(pcrds)), ID=as.character(idvec[i]))
 	}
 	partition <- sp::SpatialPolygons(partition)
-	partition
 }

@@ -79,7 +79,7 @@ sharks_with_obs_propagate_EKF_1d_interp_joint <- function(env_obj) {
 	}#loop over particles and sharks
 
 
-	print("recalculating x dist and propagating")
+	if (env_obj$show_prints) print("recalculating x dist and propagating")
 
 	#recalculate turn angle at time t-1 to get to locations at time t
 	#Xpart_history[i,"logv",,sharks_with_obs] <- normalize_logv(Xpart_history[i,"logv",,sharks_with_obs])

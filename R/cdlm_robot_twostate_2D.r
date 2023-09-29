@@ -169,7 +169,7 @@ server=shinyServer(function(input, output, session)
 			z <- yt[ ii, "state"]
 
 			
-			while(inside==FALSE) {
+			while(! inside) {
 			
 				yt[ ii, "vel"] <- rnorm(n=1, mean=vel_mu[ z ], sd=sqrt(input$vel_var))
 				if (ii > 1) { 
@@ -208,7 +208,7 @@ server=shinyServer(function(input, output, session)
 			count <- 0
 			
 			
-			while(inside==FALSE & count <= ntry) {
+			while((! inside) & (count <= ntry)) {
 				count <- count +1
 				xy <- mvtnorm::rmvnorm(n=1, mean=mu, sigma=cmat)
 			
@@ -549,7 +549,7 @@ server=shinyServer(function(input, output, session)
 						
 						params$dir_params[,"resamp",input$iter-1,] <- params$dir_params[,"orig",input$iter-1,ord]
 						
-						if (input$tp_known==FALSE) { params$trans_draws[,,"resamp",input$iter-1,] <- params$trans_draws[,,"orig",input$iter-1,ord] }
+						if (! input$tp_known) { params$trans_draws[,,"resamp",input$iter-1,] <- params$trans_draws[,,"orig",input$iter-1,ord] }
 						
 				
 						
@@ -569,7 +569,7 @@ server=shinyServer(function(input, output, session)
 							
 						if (input$iter > 1) {	
 
-							if (params$is_new_step[ input$iter ]==FALSE & params$is_new_step[ input$iter+1 ]==TRUE) {
+							if ((! params$is_new_step[ input$iter ]) & params$is_new_step[ input$iter+1 ]==TRUE) {
 					
 								invalidateLater(millis=render_delay_step)
 								isolate(params$wts_counter <- min(input$npart, params$wts_counter + 1))
@@ -738,7 +738,7 @@ server=shinyServer(function(input, output, session)
 					       #params$mu_pars["mu_mean","orig",input$iter+1,next_state[ nn ],nn] <- (params$mu_pars["mu_mean","resamp",input$iter,next_state[ nn ],nn]/params$mu_pars["mu_var","resamp",input$iter,next_state[ nn ],nn] + params$xpart[2,"orig",input$iter+1,nn]/input$vel_var)*params$mu_pars["mu_var","orig",input$iter+1,next_state[ nn ],nn]
 					       #copy and update only value
 
-						    if (input$tp_known==FALSE) {
+						    if (! input$tp_known) {
 								params$dir_params[,"orig",input$iter,nn] <- params$dir_params[,"resamp",input$iter-1, nn ]
 								#params$dir_params[ alpha_index[ nn ],"orig",input$iter+1,nn] <- params$dir_params[alpha_index[ nn ],"orig",input$iter+1,nn] +1
 								params$dir_params[ alpha_index[ nn ],"orig",input$iter,nn] <- params$dir_params[alpha_index[ nn ],"orig",input$iter,nn] +1

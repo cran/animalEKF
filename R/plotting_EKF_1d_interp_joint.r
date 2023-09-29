@@ -399,7 +399,7 @@ plotting_EKF_1d_interp_joint <- function(env_obj) {
 				nearby_obs_indices <- c(max(which(d_of_shark$date_as_sec <= env_obj$t_reg[i+1])), min(which(d_of_shark$date_as_sec >= env_obj$t_reg[i+1])))
 				
 				if (diff(nearby_obs_indices) == 0) {
-					euc_true_pred <- d_of_shark$X[ nearby_obs_indices[1]]
+					euc_true_pred <- d_of_shark$X[ nearby_obs_indices[1] ]
 				}
 				else {
 					#interpolate observed velocity
@@ -408,6 +408,7 @@ plotting_EKF_1d_interp_joint <- function(env_obj) {
 					
 					euc_true_pred <- d_of_shark$X[nearby_obs_indices[1]] + obs_velocity * (env_obj$t_reg[i+1] - d_of_shark$date_as_sec[nearby_obs_indices[1]])
 				}
+				
 				
 				env_obj$euclidean_estimate_true_from_obs[i+1,s] <- euc_true_pred
 				env_obj$error_euclidean_estimate_true_from_obs[i+1,s] <- sum(abs(euc_true_pred - obs))
@@ -948,7 +949,7 @@ plotting_EKF_1d_interp_joint <- function(env_obj) {
 				legend("bottomleft",  col=1:env_obj$nsharks, lwd=1.5, legend=env_obj$shark_names, bg="white", lty = (1:env_obj$nsharks)%%3 + 1)
 			}
 			
-			if( any(! is.na(env_obj$spatial_interact_intensity_history))) {
+			if ( any(! is.na(env_obj$spatial_interact_intensity_history))) {
 				matplot(env_obj$spatial_interact_intensity_history[,1,], type="b", lwd=1.5, pch=19, cex=0.4, col=1:env_obj$nsharks, lty = (1:env_obj$nsharks)%%3 + 1, main="Median historical interaction value (simulated over all neighborhood proportions)",  ylab="interaction value")
 				legend("bottomleft",  col=1:env_obj$nsharks, lwd=1.5, legend=env_obj$shark_names, bg="white", lty = (1:env_obj$nsharks)%%3 + 1)
 				
