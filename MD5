@@ -1,4 +1,4 @@
-5398efef78397b8b420c6c754326f752 *DESCRIPTION
+feb7392468c2bad25630a08c82931b9f *DESCRIPTION
 207ede45bcc4d13b6dda9499960613d3 *NAMESPACE
 dfa9fb3eda5f0153a77196ba3084c2d5 *R/EKF_1d_interp_joint.r
 74fbd1fc7f6c735b34e96f8d315ee89d *R/EKF_interp_joint.r
@@ -51,12 +51,12 @@ a87727a2f539838b38e2957f533869ed *R/sharks_with_obs_sim_EKF_interp_joint.r
 5577b32550337fbb7bb48f10f4d1c94d *R/smoothing_EKF_interp_joint.r
 8a9f23bc489b5b461b3e566287b4794d *R/spline_interp.r
 238144582ffd4c952f03a29b161c8303 *R/tess2spat.r
-74cc286e650a2251cbd6e68e889620bd *build/partial.rdb
-d046fafe5c0a07045a9ce5047dca289d *data/bc_longlat_map.rda
-b4d1c7ae62e7b4bc6301f88cbf8bb917 *data/bc_longlat_map_img_ras.rda
+3e1b34d13990b4b8bb580b39b9a158ca *build/partial.rdb
+c0b35b32d8dbdbbd9d2d438f97072e78 *data/bc_longlat_map.rda
+843b2b64ba795d9fb768b4ead9bca69c *data/bc_longlat_map_img_ras.rda
 86e6d8589ebd6923b01d42bd330c436b *data/datalist
-2dd78253c2d16d3857ab9303a98c6b74 *data/shark_data_longlat.rda
-aa11ec0915b95b9d4ba59c4527275904 *data/shark_data_raw.rda
+1ed831ea5a75844b687214d171d33b31 *data/shark_data_longlat.rda
+c8b4f488fd8199167464d9cdfda4bd9e *data/shark_data_raw.rda
 0c17364e07b20da3d77ee5dffe553a25 *inst/shapes/FTB_island.dbf
 6691773e869d0311e3d80ad412b2d025 *inst/shapes/FTB_island.prj
 d4f94082eacec268cf16aebd1909e18b *inst/shapes/FTB_island.sbn
@@ -70,8 +70,8 @@ aeb88465003004e95569a3f630aea57c *inst/shapes/FTB_island.shp
 c4f38f068ea77f947f76d9031c7071af *inst/shapes/FTB_lines.sbx
 6b18158b8a4abaf63ce6f98400bcc32d *inst/shapes/FTB_lines.shp
 dce0ebd6240518d131cd6fd3ef1d8a04 *inst/shapes/FTB_lines.shx
-6d63930ce1e1b4bee504221544861cf3 *man/EKF_1d_interp_joint.Rd
-d0f8d51e3920287b0820e52dd6b81767 *man/EKF_interp_joint.Rd
+ef6ee93daa1b5bdbea032d14746617d6 *man/EKF_1d_interp_joint.Rd
+3c30fb1454c8c857fd52087e3bb03738 *man/EKF_interp_joint.Rd
 1dda1b9a9b526ea7b822fd1c0fa8447b *man/animalEKF-package.Rd
 bcc0b6bbcaf0cee6393a7e9efb5bc777 *man/bc_longlat_map.Rd
 fbcdfb08b5751bbc1a556963854e10f0 *man/bc_longlat_map_img_ras.Rd
@@ -79,7 +79,7 @@ fbcdfb08b5751bbc1a556963854e10f0 *man/bc_longlat_map_img_ras.Rd
 96e90b75aa2bd14ecdc4d55ca59ccdb7 *man/cdlm_robot_twostate.Rd
 f6bf9c6a310b88efe4a5f44ade1f706e *man/cdlm_robot_twostate2D.Rd
 231f6b6f2d1991206d8b46996faeef60 *man/low_var_sample.Rd
-5b039256bff1578f53f4eb3a5bca763b *man/make_segments.Rd
+91dfe2e0e6bedc3cb1295349a22fb1a6 *man/make_segments.Rd
 623ac4440129c9c751f242b02f36a236 *man/normalize_angle.Rd
 8f6945a94281ccd414addfd9196dfab1 *man/rug_multicolor.Rd
 3608d419e67eaaf8c64aa93a123514b7 *man/shark_data_longlat.Rd

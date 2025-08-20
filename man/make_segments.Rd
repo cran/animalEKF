@@ -5,7 +5,7 @@
 Plot path connecting points on ggplot.
 }
 \description{
-Convert x-y coordinates to a \code{data.frame} for \code{geom_path} plotting on \code{\link{ggplot}}.
+Convert x-y coordinates to a \code{data.frame} for \code{geom_path} plotting on \code{\link[ggplot2]{ggplot}}.
 }
 \usage{
 make_segments(xy, N=nrow(xy))

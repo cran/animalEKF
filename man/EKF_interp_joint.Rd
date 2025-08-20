@@ -62,7 +62,7 @@ List of prior 2x2 covariance matrices for predicting y from x, one for each beha
 Vector of degrees of freedom of \code{Errvar0} covariance matrices.
 }
   \item{Particle_errvar0}{
-Prior 2x2 covariance matrix for predicting x_t from x_{t-1}.
+Prior 2x2 covariance matrix for predicting x_t from x_[t-1].
 }
   \item{Particle_err_df}{
 Degree of freedom of \code{Particle_errvar0}.
